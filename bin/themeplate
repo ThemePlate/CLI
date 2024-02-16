@@ -8,7 +8,7 @@ use ThemePlate\CLI\CommandRegistry;
 require_once getcwd() . '/vendor/autoload.php';
 
 $commandLoader = new FactoryCommandLoader( CommandRegistry::dump() );
-$application   = new Application( 'ThemePlate', '0.1.0' );
+$application   = new Application( 'ThemePlate', '1.0.0' );
 
 $application->setCommandLoader( $commandLoader );
 $application->run();

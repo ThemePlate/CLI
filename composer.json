@@ -15,7 +15,8 @@
 	],
 	"config": {
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
 		},
 		"optimize-autoloader": true,
 		"preferred-install": "dist",
@@ -27,6 +28,11 @@
 	},
 	"require-dev": {
 		"themeplate/tester": "^2.0"
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-main": "1.x-dev"
+		}
 	},
 	"autoload": {
 		"psr-4": {
