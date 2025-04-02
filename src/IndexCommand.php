@@ -37,7 +37,7 @@ class IndexCommand extends Command {
 
 		$destination = realpath( rtrim( $input->getArgument( 'path' ), '/\\' ) );
 
-		if ( ! is_dir( $destination ) ) {
+		if ( false === $destination || ! is_dir( $destination ) ) {
 			return Command::FAILURE;
 		}
 
@@ -67,11 +67,15 @@ class IndexCommand extends Command {
 
 			$directory = $fileinfo->getRealPath();
 
-			if (
-				0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . '.' ) ||
-				0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'node_modules' ) ||
-				0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'vendor' )
-			) {
+			if ( 0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . '.' ) ) {
+				continue;
+			}
+
+			if ( 0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'node_modules' ) ) {
+				continue;
+			}
+
+			if ( 0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'vendor' ) ) {
 				continue;
 			}
 
