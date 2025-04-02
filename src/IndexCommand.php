@@ -41,14 +41,10 @@ class IndexCommand extends Command {
 			return Command::FAILURE;
 		}
 
-		$relative = function ( string $path ) use ( $destination ): string {
-			return str_replace( $destination, '', $path );
-		};
+		$relative = fn( string $path ): string => str_replace( $destination, '', $path );
 
 		$maybe_add = function ( string $path ) use ( $relative, $output ): void {
-			$file = function ( string $base ): string {
-				return $base . DIRECTORY_SEPARATOR . 'index.php';
-			};
+			$file = fn( string $base ): string => $base . DIRECTORY_SEPARATOR . 'index.php';
 
 			if ( ! file_exists( $file( $path ) ) ) {
 				copy( $file( __DIR__ ), $file( $path ) );
