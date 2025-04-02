@@ -73,6 +73,7 @@ class IndexCommand extends Command {
 
 			if (
 				0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . '.' ) ||
+				0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'node_modules' ) ||
 				0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'vendor' )
 			) {
 				continue;
