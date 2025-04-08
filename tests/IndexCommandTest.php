@@ -14,6 +14,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
 class IndexCommandTest extends TestCase {
+	/** @return array<array<bool>> */
 	public function forTestExecute(): array {
 		return array(
 			array( true ),

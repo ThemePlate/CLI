@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 
 class CommandRegistry {
 
+	/** @var array<string, CommandFactory> */
 	protected static array $commands = array();
 
 
@@ -20,6 +21,7 @@ class CommandRegistry {
 	}
 
 
+	/** @return array<string, CommandFactory> */
 	public static function dump(): array {
 
 		return self::$commands;

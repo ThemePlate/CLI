@@ -17,7 +17,10 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class IndexCommand extends Command {
 
 	// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
-	protected static $defaultName        = 'index.php';
+	/** @var string */
+	protected static $defaultName = 'index.php';
+
+	/** @var string */
 	protected static $defaultDescription = 'Recursively add index.php';
 	// phpcs:enable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
