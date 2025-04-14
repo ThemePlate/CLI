@@ -99,15 +99,15 @@ class IndexCommand extends Command {
 				continue;
 			}
 
-			if ( 0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . '.' ) ) {
+			if ( false !== strpos( $relative( $directory ), DIRECTORY_SEPARATOR . '.' ) ) {
 				continue;
 			}
 
-			if ( 0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'node_modules' ) ) {
+			if ( false !== strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'node_modules' ) ) {
 				continue;
 			}
 
-			if ( 0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'vendor' ) ) {
+			if ( false !== strpos( $relative( $directory ), DIRECTORY_SEPARATOR . 'vendor' ) ) {
 				continue;
 			}
 
