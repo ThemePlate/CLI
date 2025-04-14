@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Process\Process;
 
 class IndexCommand extends Command {
 
@@ -63,12 +64,40 @@ class IndexCommand extends Command {
 			RecursiveIteratorIterator::SELF_FIRST
 		);
 
+		$command = sprintf( 'git --work-tree=%s ls-files --others --directory --ignored --exclude-standard', $destination );
+		$process = Process::fromShellCommandline( $command );
+		$ignores = array();
+
+		if ( 0 === $process->run() ) {
+			$ignores = array_filter(
+				array_map(
+					fn( string $path ): string => str_replace( array( '/', '\\' ), DIRECTORY_SEPARATOR, $path ),
+					explode( "\n", trim( $process->getOutput() ) )
+				),
+				fn( string $path ): bool => substr( $path, -1 ) === DIRECTORY_SEPARATOR
+			);
+
+			array_unshift( $ignores, '.git/' );
+		}
+
 		foreach ( $files as $fileinfo ) {
 			if ( ! $fileinfo->isDir() ) {
 				continue;
 			}
 
 			$directory = $fileinfo->getRealPath();
+
+			if ( array() !== $ignores ) {
+				foreach ( $ignores as $ignore ) {
+					if ( 0 === strpos( $relative( $directory ) . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR . $ignore ) ) {
+						continue 2;
+					}
+				}
+
+				$maybe_add( $directory );
+
+				continue;
+			}
 
 			if ( 0 === strpos( $relative( $directory ), DIRECTORY_SEPARATOR . '.' ) ) {
 				continue;
