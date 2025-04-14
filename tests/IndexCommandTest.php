@@ -34,13 +34,19 @@ class IndexCommandTest extends TestCase {
 		$path = './tester';
 
 		if ( $expected ) {
-			mkdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			if ( ! is_dir( $path ) ) {
+				mkdir( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			}
 
 			for ( $i = 1; $i <= 2; $i++ ) {
-				mkdir( $path . DIRECTORY_SEPARATOR . $i ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+				if ( ! is_dir( $path . DIRECTORY_SEPARATOR . $i ) ) {
+					mkdir( $path . DIRECTORY_SEPARATOR . $i ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+				}
 
 				for ( $j = 1; $j <= 2; $j++ ) {
-					mkdir( $path . DIRECTORY_SEPARATOR . $i . DIRECTORY_SEPARATOR . $j ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+					if ( ! is_dir( $path . DIRECTORY_SEPARATOR . $i . DIRECTORY_SEPARATOR . $j ) ) {
+						mkdir( $path . DIRECTORY_SEPARATOR . $i . DIRECTORY_SEPARATOR . $j ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+					}
 				}
 			}
 		}
