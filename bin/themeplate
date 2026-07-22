@@ -5,7 +5,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
 use ThemePlate\CLI\CommandRegistry;
 
-require_once getcwd() . '/vendor/autoload.php';
+require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
 $commandLoader = new FactoryCommandLoader( CommandRegistry::dump() );
 $application   = new Application( 'ThemePlate', '1.0.0' );
