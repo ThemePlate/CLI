@@ -7,15 +7,24 @@
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Command\Command;
 use ThemePlate\CLI\CommandFactory;
+use ThemePlate\CLI\IndexCommand;
 
 class CommandFactoryTest extends TestCase {
-	public function test_construct_and_invoke(): void {
-		$command = new Command( 'test' );
-		$factory = new CommandFactory( $command );
+	public function testConstructAndInvoke(): void {
+		try {
+			$factory = new CommandFactory( IndexCommand::class );
+		} catch ( \TypeError $error ) {
+			$factory = null;
+		}
 
-		$this->assertInstanceOf( Command::class, $factory() );
-		$this->assertSame( $command, $factory() );
+		$this->assertInstanceOf( CommandFactory::class, $factory );
+
+		$first  = $factory();
+		$second = $factory();
+
+		$this->assertInstanceOf( IndexCommand::class, $first );
+		$this->assertInstanceOf( IndexCommand::class, $second );
+		$this->assertNotSame( $first, $second );
 	}
 }

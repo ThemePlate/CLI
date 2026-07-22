@@ -16,8 +16,11 @@ if ( false === $files ) {
 }
 
 foreach ( $files as $file ) {
-	/** @var class-string<Command> $class */
 	$class = __NAMESPACE__ . '\\' . basename( $file, '.php' );
 
-	CommandRegistry::add( new $class() );
+	if ( ! is_subclass_of( $class, Command::class ) || ! ( new \ReflectionClass( $class ) )->isInstantiable() ) {
+		continue;
+	}
+
+	CommandRegistry::add( $class );
 }

@@ -10,10 +10,12 @@ use Symfony\Component\Console\Command\Command;
 
 class CommandFactory {
 
-	protected Command $command;
+	/** @var Command|class-string<Command> */
+	protected $command;
 
 
-	public function __construct( Command $command ) {
+	/** @param Command|class-string<Command> $command */
+	public function __construct( $command ) {
 
 		$this->command = $command;
 
@@ -22,7 +24,13 @@ class CommandFactory {
 
 	public function __invoke(): Command {
 
-		return $this->command;
+		if ( $this->command instanceof Command ) {
+			return $this->command;
+		}
+
+		$class = $this->command;
+
+		return new $class();
 
 	}
 

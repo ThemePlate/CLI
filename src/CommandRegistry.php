@@ -14,9 +14,29 @@ class CommandRegistry {
 	protected static array $commands = array();
 
 
-	public static function add( Command $command ): void {
+	/** @param Command|string $command */
+	public static function add( $command ): void {
 
-		self::$commands[ $command->getName() ] = new CommandFactory( $command );
+		if ( $command instanceof Command ) {
+			$name = $command->getName();
+		} elseif ( is_subclass_of( $command, Command::class ) ) {
+			$name = $command::getDefaultName();
+		} else {
+			throw new \InvalidArgumentException( 'Command class must extend Symfony Command.' );
+		}
+
+		if ( null === $name ) {
+			throw new \InvalidArgumentException( 'Command name must be set.' );
+		}
+
+		self::$commands[ $name ] = new CommandFactory( $command );
+
+	}
+
+
+	public static function reset(): void {
+
+		self::$commands = array();
 
 	}
 
