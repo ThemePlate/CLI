@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Process\Process;
 
 class IndexCommand extends Command {
@@ -39,21 +38,36 @@ class IndexCommand extends Command {
 
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
 
-		$destination = realpath( rtrim( $input->getArgument( 'path' ), '/\\' ) );
+		$path = rtrim( $input->getArgument( 'path' ), '/\\' );
+
+		if ( '' === $path ) {
+			return Command::FAILURE;
+		}
+
+		$destination = realpath( $path );
 
 		if ( false === $destination || ! is_dir( $destination ) ) {
 			return Command::FAILURE;
 		}
 
-		$relative = fn( string $path ): string => str_replace( $destination, '', $path );
+		$relative = fn( string $file ): string => substr( $file, strlen( $destination ) );
 
-		$maybe_add = function ( string $path ) use ( $relative, $output ): void {
+		$maybe_add = function ( string $path ) use ( $relative, $output ): bool {
 			$file = fn( string $base ): string => $base . DIRECTORY_SEPARATOR . 'index.php';
 
-			if ( ! file_exists( $file( $path ) ) ) {
-				copy( $file( __DIR__ ), $file( $path ) );
-				$output->writeln( 'Added .' . $relative( $file( $path ) ) );
+			if ( file_exists( $file( $path ) ) ) {
+				return true;
 			}
+
+			if ( ! copy( $file( __DIR__ ), $file( $path ) ) ) {
+				$output->writeln( 'Unable to add .' . $relative( $file( $path ) ) );
+
+				return false;
+			}
+
+			$output->writeln( 'Added .' . $relative( $file( $path ) ) );
+
+			return true;
 		};
 
 		$files = new RecursiveIteratorIterator(
@@ -64,20 +78,23 @@ class IndexCommand extends Command {
 			RecursiveIteratorIterator::SELF_FIRST
 		);
 
-		$command = sprintf( 'git --work-tree=%s ls-files --others --directory --ignored --exclude-standard', $destination );
-		$process = Process::fromShellCommandline( $command );
+		$process = new Process(
+			array( 'git', 'ls-files', '--others', '--directory', '--ignored', '--exclude-standard' ),
+			$destination
+		);
 		$ignores = array();
+		$success = true;
 
 		if ( 0 === $process->run() ) {
 			$ignores = array_filter(
 				array_map(
-					fn( string $path ): string => str_replace( array( '/', '\\' ), DIRECTORY_SEPARATOR, $path ),
+					fn( string $file ): string => str_replace( array( '/', '\\' ), DIRECTORY_SEPARATOR, $file ),
 					explode( "\n", trim( $process->getOutput() ) )
 				),
-				fn( string $path ): bool => substr( $path, -1 ) === DIRECTORY_SEPARATOR
+				fn( string $file ): bool => substr( $file, -1 ) === DIRECTORY_SEPARATOR
 			);
 
-			array_unshift( $ignores, '.git/' );
+			array_unshift( $ignores, '.git' . DIRECTORY_SEPARATOR );
 		}
 
 		foreach ( $files as $fileinfo ) {
@@ -87,14 +104,18 @@ class IndexCommand extends Command {
 
 			$directory = $fileinfo->getRealPath();
 
+			if ( false === $directory ) {
+				continue;
+			}
+
 			if ( array() !== $ignores ) {
 				foreach ( $ignores as $ignore ) {
-					if ( 0 === strpos( $relative( $directory ) . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR . $ignore ) ) {
+					if ( 0 === strpos( ltrim( $relative( $directory ), DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR, $ignore ) ) {
 						continue 2;
 					}
 				}
 
-				$maybe_add( $directory );
+				$success = $maybe_add( $directory ) && $success;
 
 				continue;
 			}
@@ -111,12 +132,12 @@ class IndexCommand extends Command {
 				continue;
 			}
 
-			$maybe_add( $directory );
+			$success = $maybe_add( $directory ) && $success;
 		}
 
-		$maybe_add( $destination );
+		$success = $maybe_add( $destination ) && $success;
 
-		return Command::SUCCESS;
+		return $success ? Command::SUCCESS : Command::FAILURE;
 
 	}
 
